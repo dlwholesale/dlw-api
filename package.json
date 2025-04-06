@@ -1,0 +1,36 @@
+{
+  "name": "dlwholesale-plaid-integration-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.4",
+    "@supabase/supabase-js": "^2.49.1",
+    "axios": "^1.8.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mailgun-js": "^0.22.0",
+    "node-mailjet": "^6.0.8",
+    "nodemailer": "^6.10.0",
+    "pg": "^8.13.3",
+    "plaid": "^31.1.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.21"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.9",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.8.2"
+  }
+}
