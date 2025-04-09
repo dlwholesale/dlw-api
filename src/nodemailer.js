@@ -2,10 +2,10 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    port: Number(process.env.SMTP_PORT),
     secure: true,
     auth: {
-        user: process.env.SMTP_EMAIL,
+        user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASSWORD,
     },
 });
@@ -21,18 +21,15 @@ const transporter = nodemailer.createTransport({
 async function sendEmail({to, subject, text, html}) {
     try {
         const mailOptions = {
-            from: `"DL Wholesale" <${process.env.SMTP_EMAIL}>`,
+            from: `"DL Wholesale" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
             to,
             subject,
             text,
             html,
         };
 
-        const info = await transporter.sendMail(mailOptions);
-
-        console.log('INFO', info);
+        return await transporter.sendMail(mailOptions);
     } catch (error) {
-        console.error('Error sending email:', error);
         throw error;
     }
 }
