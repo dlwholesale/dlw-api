@@ -23,6 +23,11 @@ module.exports = class CreateCustomerTable1741448674753 {
                         type: "varchar"
                     },
                     {
+                        name: "business_name",
+                        type: "varchar",
+                        isNullable: true
+                    },
+                    {
                         name: "email",
                         type: "varchar",
                         isUnique: true

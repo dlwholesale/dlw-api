@@ -18,48 +18,45 @@ module.exports = new EntitySchema({
         name: {
             type: "varchar"
         },
+        businessName: {
+            type: "varchar",
+            name: "business_name"
+        },
         email: {
             type: "varchar",
             unique: true
         },
         phone: {
             type: "varchar",
-            select: false
         },
         street: {
             type: "varchar",
             name: "address_street",
             nullable: true,
-            select: false
         },
         street2: {
             type: "varchar",
             name: "address_street2",
             nullable: true,
-            select: false
         },
         city: {
             type: "varchar",
             name: "address_city",
             nullable: true,
-            select: false
         },
         region: {
             type: "varchar",
             name: "address_region",
             nullable: true,
-            select: false
         },
         postalCode: {
             type: "varchar",
             name: "address_postal_code",
             nullable: true,
-            select: false
         },
         country: {
             type: "varchar",
             name: "address_country",
-            select: false
         },
         linked: {
             type: "boolean",

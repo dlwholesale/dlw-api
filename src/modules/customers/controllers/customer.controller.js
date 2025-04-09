@@ -84,6 +84,7 @@ class CustomerController {
     async createAndSendHostedLink(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);
+            console.log('Primer paso');
             const customer = await this.createAndSendHostedLinkForCustomer(id);
 
             return res.status(201).json(customer);
