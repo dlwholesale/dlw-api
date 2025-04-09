@@ -44,7 +44,9 @@ class PlaidController {
             const id = parseInt(req.params.id, 10);
             const {hostedLinkUrl, linkToken, requestId, email} = await PlaidService.createPlaidLink(id);
 
+		console.log('RPS: Token created');
             await this.emailHostedLinkUrlToCustomer(hostedLinkUrl, email);
+		console.log('RPS: Email sent');
 
             return res.json({
                 linkToken,
