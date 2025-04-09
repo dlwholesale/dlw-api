@@ -42,10 +42,8 @@ class PlaidController {
     async createAndSendLinkToken(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);
-            console.log('First, create the LINK');
             const {hostedLinkUrl, linkToken, requestId, email} = await PlaidService.createPlaidLink(id);
 
-            console.log('I am here!');
             await this.emailHostedLinkUrlToCustomer(hostedLinkUrl, email);
 
             return res.json({
