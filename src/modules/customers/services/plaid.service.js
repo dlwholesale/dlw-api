@@ -102,6 +102,8 @@ class PlaidService {
 
         try {
             const response = await PlaidClient.accountsBalanceGet(request);
+
+            await errorLogService.logError(response);
             const balances = response.data.accounts[0].balances;
 
             // Update the customer's data
