@@ -8,13 +8,11 @@ class ErrorLogService {
 
     /**
      * Logs an error to the database.
-     * @param {Error} error The error object.
-     * @param {Object} [details] Additional details (optional).
      */
     async logError(error, details = null) {
         // Create an error log record, stringify additional details if provided.
         const errorRecord = {
-            message: error.message,
+            message: JSON.stringify(error),
             stack: error.stack,
             details: details ? JSON.stringify(details) : null,
         };
