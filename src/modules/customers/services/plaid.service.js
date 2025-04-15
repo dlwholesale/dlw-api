@@ -84,14 +84,14 @@ class PlaidService {
         const lastUpdated = customer.updatedAt ? new Date(customer.updatedAt) : null;
         const tenMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
 
-        // If balance_updated_at is null or is within the last 10 minutes, use the cached balance.
-        if (!lastUpdated || lastUpdated >= tenMinutesAgo) {
-            return {
-                customer,
-                refreshed: false,
-                message: "Cached value is used because it is within the configured threshold (last ten minutes).",
-            };
-        }
+        // // If balance_updated_at is null or is within the last 10 minutes, use the cached balance.
+        // if (!lastUpdated || lastUpdated >= tenMinutesAgo) {
+        //     return {
+        //         customer,
+        //         refreshed: false,
+        //         message: "Cached value is used because it is within the configured threshold (last ten minutes).",
+        //     };
+        // }
 
         // Otherwise, call the Plaid API to get a fresh balance.
         const request = {
