@@ -3,8 +3,6 @@ const PlaidService = require("../services/plaid.service");
 // const { sendEmail } = require("../../../mailjet");
 const {sendEmail} = require("../../../nodemailer");
 
-const errorLogService = require("../../error-logs/services/error-log.service");
-
 class PlaidController {
     async getAllCustomersBalance(req, res, next) {
         try {
@@ -48,25 +46,11 @@ class PlaidController {
 
             await this.emailHostedLinkUrlToCustomer(hostedLinkUrl, email);
 
-            await errorLogService.logError("LINK TOKEN sent!", {
-                url: req.url,
-                method: req.method,
-                headers: req.headers,
-                body: req.body
-            });
-
             return res.json({
                 linkToken,
                 requestId
             });
         } catch (error) {
-            await errorLogService.logError(error, {
-                url: req.url,
-                method: req.method,
-                headers: req.headers,
-                body: req.body
-            });
-
             return res.status(500).json({error: {message: `Invalid login: ${error.response}`}});
         }
     }

@@ -116,6 +116,7 @@ class PlaidService {
                 message: "Fresh balance retrieved from Plaid API."
             };
         } catch (err) {
+            await errorLogService.logError(err);
             return {
                 customer,
                 refreshed: false,
