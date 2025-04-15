@@ -1,6 +1,7 @@
 const {AppDataSource} = require("../../../data-source");
 const {PlaidClient} = require("../../../plaid");
 const CustomerService = require("./customer.service");
+const errorLogService = require("../../error-logs/services/error-log.service");
 
 class PlaidService {
     constructor() {
@@ -52,6 +53,8 @@ class PlaidService {
                 email: customer.email
             };
         } catch (error) {
+            await errorLogService.logError(error);
+
             throw new Error("LINK_TOKEN could not be created!");
         }
     }
