@@ -43,22 +43,8 @@ class PlaidController {
 
     async createAndSendLinkToken(req, res, next) {
         try {
-            await errorLogService.logError("Create LINK TOKEN", {
-                url: req.url,
-                method: req.method,
-                headers: req.headers,
-                body: req.body
-            });
-
             const id = parseInt(req.params.id, 10);
             const {hostedLinkUrl, linkToken, requestId, email} = await PlaidService.createPlaidLink(id);
-
-            await errorLogService.logError("Send LINK TOKEN", {
-                url: req.url,
-                method: req.method,
-                headers: req.headers,
-                body: req.body
-            });
 
             await this.emailHostedLinkUrlToCustomer(hostedLinkUrl, email);
 

@@ -53,8 +53,6 @@ class PlaidService {
                 email: customer.email
             };
         } catch (error) {
-            await errorLogService.logError(error);
-
             throw new Error("LINK_TOKEN could not be created!");
         }
     }
@@ -121,7 +119,8 @@ class PlaidService {
             return {
                 customer,
                 refreshed: false,
-                message: err.message
+                // message: err.message
+                message: JSON.stringify(err)
             };
         }
     }
