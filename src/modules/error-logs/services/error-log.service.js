@@ -1,5 +1,5 @@
-const { AppDataSource } = require("../../data-source");
-const ErrorLog = require("./error-log.entity");
+const { AppDataSource } = require("../../../data-source");
+const ErrorLog = require("../entities/error-log.entity");
 
 class ErrorLogService {
     constructor() {
