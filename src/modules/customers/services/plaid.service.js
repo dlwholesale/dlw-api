@@ -84,7 +84,7 @@ class PlaidService {
 
         const now = new Date();
         const lastUpdated = customer.updatedAt ? new Date(customer.updatedAt) : null;
-        const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+        const tenMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
 
         // If balance_updated_at is null or is within the last 10 minutes, use the cached balance.
         if (!lastUpdated || lastUpdated >= tenMinutesAgo) {
