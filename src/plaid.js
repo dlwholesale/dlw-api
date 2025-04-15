@@ -1,8 +1,7 @@
 const { Configuration, PlaidApi, PlaidEnvironments } = require('plaid');
 
 const configuration = new Configuration({
-    // FIXME: sandbox or production
-    basePath: PlaidEnvironments.sandbox,
+    basePath: process.env.NODE_ENV === 'development' ? PlaidEnvironments.sandbox : PlaidEnvironments.production,
     baseOptions: {
         headers: {
             'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
