@@ -7,6 +7,8 @@ const webhooksRoutes = require("./modules/customers/routes/webhook.route");
 const erpRoutes = require("./modules/customers/routes/erp.route");
 const verifyAppToken = require('./modules/core/middlewares/app-token.middleware');
 
+const errorLogService = require("./modules/error-logs/services/error-log.service");
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -44,9 +46,19 @@ app.use("/webhook", webhooksRoutes);
 app.use("/erp", verifyAppToken, erpRoutes);
 
 // Global error handler middleware
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({error: err.message});
+
+    await errorLogService.logError(err, {
+        url: req.url,
+        method: req.method,
+        headers: req.headers,
+        body: req.body
+    });
+
+    res.status(500).json({ error: err.message });
 });
+
+
 
 module.exports = app;
