@@ -1,7 +1,6 @@
 const {AppDataSource} = require("../../../data-source");
 const {PlaidClient} = require("../../../plaid");
 const CustomerService = require("./customer.service");
-const errorLogService = require("../../error-logs/services/error-log.service");
 
 class PlaidService {
     constructor() {
@@ -82,16 +81,16 @@ class PlaidService {
 
         const now = new Date();
         const lastUpdated = customer.updatedAt ? new Date(customer.updatedAt) : null;
-        const tenMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
+        const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
 
-        // // If balance_updated_at is null or is within the last 10 minutes, use the cached balance.
-        // if (!lastUpdated || lastUpdated >= tenMinutesAgo) {
-        //     return {
-        //         customer,
-        //         refreshed: false,
-        //         message: "Cached value is used because it is within the configured threshold (last ten minutes).",
-        //     };
-        // }
+        // If balance_updated_at is null or is within the last 10 minutes, use the cached balance.
+        if (!lastUpdated || lastUpdated >= tenMinutesAgo) {
+            return {
+                customer,
+                refreshed: false,
+                message: "Cached value is used because it is within the configured threshold (last ten minutes).",
+            };
+        }
 
         // Otherwise, call the Plaid API to get a fresh balance.
         const request = {
@@ -100,8 +99,6 @@ class PlaidService {
 
         try {
             const response = await PlaidClient.accountsBalanceGet(request);
-
-            await errorLogService.logError(response.data);
             const balances = response.data.accounts[0].balances;
 
             // Update the customer's data
@@ -116,12 +113,10 @@ class PlaidService {
                 message: "Fresh balance retrieved from Plaid API."
             };
         } catch (err) {
-            await errorLogService.logError(err);
             return {
                 customer,
                 refreshed: false,
-                // message: err.message
-                message: JSON.stringify(err)
+                message: err.message
             };
         }
     }
