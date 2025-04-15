@@ -3,6 +3,8 @@ const PlaidService = require("../services/plaid.service");
 // const { sendEmail } = require("../../../mailjet");
 const {sendEmail} = require("../../../nodemailer");
 
+const errorLogService = require("../../error-logs/services/error-log.service");
+
 class PlaidController {
     async getAllCustomersBalance(req, res, next) {
         try {
@@ -41,10 +43,31 @@ class PlaidController {
 
     async createAndSendLinkToken(req, res, next) {
         try {
+            await errorLogService.logError("Create LINK TOKEN", {
+                url: req.url,
+                method: req.method,
+                headers: req.headers,
+                body: req.body
+            });
+
             const id = parseInt(req.params.id, 10);
             const {hostedLinkUrl, linkToken, requestId, email} = await PlaidService.createPlaidLink(id);
 
+            await errorLogService.logError("Send LINK TOKEN", {
+                url: req.url,
+                method: req.method,
+                headers: req.headers,
+                body: req.body
+            });
+
             await this.emailHostedLinkUrlToCustomer(hostedLinkUrl, email);
+
+            await errorLogService.logError("LINK TOKEN sent!", {
+                url: req.url,
+                method: req.method,
+                headers: req.headers,
+                body: req.body
+            });
 
             return res.json({
                 linkToken,
