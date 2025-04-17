@@ -56,11 +56,12 @@ class PlaidController {
     }
 
     async emailHostedLinkUrlToCustomer(hostedLinkUrl, email) {
-        const subject = "Plaid Hosted Link session";
-        const text = `Hello,\n\nTo link your account, visit: ${hostedLinkUrl}\n\nRegards,\nDL Wholesales`;
-        const html = `<p>Hello,</p>
-                    <p>To link your account, visit: <a href="${hostedLinkUrl}">${hostedLinkUrl}</a></p>
-                    <p>Regards,<br>DL Wholesale</p>`;
+        const subject = "Link your account to continue making ACH Payments";
+        const text = `Dear Customer,\n\nIn order to make payments to DL Wholesale Inc, please click the link below to setup your Plaid link.\n\n${hostedLinkUrl}\n\nRegards,\nDLW Accounting Team`;
+        const html = `<p>Dear Customer,</p>
+                    <p>In order to make payments to DL Wholesale Inc, please click the link below to setup your Plaid link.</p>
+                    <p><a href="${hostedLinkUrl}">${hostedLinkUrl}</a></p>
+                    <p>Regards,<br>DLW Accounting Team</p>`;
 
         await sendEmail({to: email, subject, text, html});
     }
