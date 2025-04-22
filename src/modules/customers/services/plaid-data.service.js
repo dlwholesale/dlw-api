@@ -17,6 +17,15 @@ class PlaidDataService {
 
         return await this.plaidDataRepository.save(entity);
     }
+
+    async getCustomerIdentity(id) {
+        const entity = await this.plaidDataRepository.findOneBy({customerId: id});
+        if (!entity) {
+            throw new Error("Customer not found");
+        }
+
+        return entity;
+    }
 }
 
 module.exports = new PlaidDataService();

@@ -1,4 +1,5 @@
 const CustomerService = require("../services/customer.service");
+const PlaidDataService = require("../services/plaid-data.service");
 const axios = require("axios");
 
 class CustomerController {
@@ -90,6 +91,17 @@ class CustomerController {
             return await CustomerService.updateCustomer(id, {linkToken: data.linkToken, linked: false});
         } catch (error) {
             throw new Error(error.message);
+        }
+    }
+
+    async getCustomerIdentity(req, res, next) {
+        try {
+            const id = parseInt(req.params.id, 10);
+            const data = await PlaidDataService.getCustomerIdentity(id);
+
+            return res.json(data);
+        } catch (err) {
+            return res.status(404).json({error: err.message});
         }
     }
 }

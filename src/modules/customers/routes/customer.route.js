@@ -8,5 +8,6 @@ router.post("/", (req, res, next) => CustomerController.createCustomer(req, res,
 router.put("/:id", (req, res, next) => CustomerController.updateCustomer(req, res, next));
 router.delete("/:id", (req, res, next) => CustomerController.deleteCustomer(req, res, next));
 router.get("/:id/link/token/create-and-send", (req, res, next) => CustomerController.createAndSendHostedLink(req, res, next));
+router.get("/:id/identity", (req, res, next) => CustomerController.getCustomerIdentity(req, res, next));
 
 module.exports = router;

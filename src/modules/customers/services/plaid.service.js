@@ -132,13 +132,13 @@ class PlaidService {
             throw new Error("Customer not found");
         }
 
-        // Otherwise, call the Plaid API to get a fresh balance.
         const request = {
             access_token: customer.accessToken
         }
 
         try {
-            const {accounts} = await PlaidClient.identityGet(request);
+            const { data } = await PlaidClient.identityGet(request);
+            const accounts = data.accounts;
 
             const owner = accounts[0].owners[0];
             const email = owner.emails.find(data => data.primary) || {};
