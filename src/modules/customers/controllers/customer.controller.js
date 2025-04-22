@@ -53,21 +53,10 @@ class CustomerController {
             const id = parseInt(req.params.id, 10);
             customer = await CustomerService.updateCustomer(id, req.body);
 
-            msg1 = 'Customer updated successfully.';
+            return res.status(201).json({customer, message: 'Customer updated successfully.'});
         } catch (err) {
             return res.status(400).json({message: err.detail});
         }
-
-        let msg2;
-        try {
-            await this.createAndSendHostedLinkForCustomer(customer.id);
-
-            msg2 = 'Email sent for account linking';
-        } catch (err) {
-            msg2 = err.message;
-        }
-
-        return res.status(201).json({customer, message: `${msg1}. ${msg2}`});
     }
 
     async deleteCustomer(req, res, next) {

@@ -1,6 +1,7 @@
 const {AppDataSource} = require("../../../data-source");
 const {PlaidClient} = require("../../../plaid");
 const CustomerService = require("./customer.service");
+const PlaidDataService = require("./plaid-data.service");
 
 class PlaidService {
     constructor() {
@@ -123,6 +124,46 @@ class PlaidService {
 
     async getAllLinkedCustomers() {
         return await this.customerRepository.findBy({linked: true});
+    }
+
+    async getCustomerIdentity(id) {
+        const customer = await this.customerRepository.findOneBy({id: id});
+        if (!customer) {
+            throw new Error("Customer not found");
+        }
+
+        // Otherwise, call the Plaid API to get a fresh balance.
+        const request = {
+            access_token: customer.accessToken
+        }
+
+        try {
+            const {accounts} = await PlaidClient.identityGet(request);
+
+            const owner = accounts[0].owners[0];
+            const email = owner.emails.find(data => data.primary) || {};
+            const phone = owner.phone_numbers.find(data => data.primary) || {};
+            const address = owner.addresses.find(data => data.primary) || {};
+
+            const updatedData = {
+                customerId: id,
+                name: owner.names[0],
+                email: email.data || null,
+                phone: phone.data || null,
+                street: address.data.street,
+                // street2: address.data.street2,
+                city: address.data.city,
+                region: address.data.region,
+                postalCode: address.data.postal_code,
+                country: address.data.country,
+            };
+
+            return await PlaidDataService.upsertPlaidDataForCustomer(id, updatedData);
+        } catch (err) {
+            return {
+                message: err.message
+            };
+        }
     }
 }
 
