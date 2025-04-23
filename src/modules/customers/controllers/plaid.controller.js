@@ -50,6 +50,17 @@ class PlaidController {
         }
     }
 
+    async getCustomerAuth(req, res, next) {
+        try {
+            const id = parseInt(req.params.id, 10);
+            const data = await PlaidService.getCustomerAuth(id);
+
+            return res.json(data);
+        } catch (err) {
+            return res.status(404).json({error: err.message});
+        }
+    }
+
     async createAndSendLinkToken(req, res, next) {
         try {
             const id = parseInt(req.params.id, 10);

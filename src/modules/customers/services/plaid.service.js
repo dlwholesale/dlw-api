@@ -145,7 +145,7 @@ class PlaidService {
             const phone = owner.phone_numbers.find(data => data.primary) || {};
             const address = owner.addresses.find(data => data.primary) || {};
 
-            const updatedData = {
+            return {
                 customerId: id,
                 name: owner.names[0],
                 email: email.data || null,
@@ -157,8 +157,31 @@ class PlaidService {
                 postalCode: address.data.postal_code,
                 country: address.data.country,
             };
+        } catch (err) {
+            return {
+                message: err.message
+            };
+        }
+    }
 
-            return await PlaidDataService.upsertPlaidDataForCustomer(id, updatedData);
+    async getCustomerAuth(id) {
+        const customer = await this.customerRepository.findOneBy({id: id});
+        if (!customer) {
+            throw new Error("Customer not found");
+        }
+
+        const request = {
+            access_token: customer.accessToken
+        }
+
+        try {
+            const { data } = await PlaidClient.authGet(request);
+            const achNumbers = data.numbers.ach;
+
+            return {
+                account: achNumbers[0].account,
+                routing: achNumbers[0].routing,
+            };
         } catch (err) {
             return {
                 message: err.message
