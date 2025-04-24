@@ -38,6 +38,7 @@ class PlaidService {
             hosted_link: {
                 // delivery_method: 'email',
                 // completion_redirect_uri: '',
+                url_lifetime_seconds: 604800,
                 is_mobile_app: false,
             },
         };
