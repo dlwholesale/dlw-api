@@ -79,11 +79,25 @@ class PlaidController {
 
     async emailHostedLinkUrlToCustomer(hostedLinkUrl, email) {
         const subject = "Link your account to continue making ACH Payments";
-        const text = `Dear Customer,\n\nIn order to make payments to DL Wholesale Inc, please click the link below to setup your Plaid link.\n\n${hostedLinkUrl}\n\nRegards,\nDLW Accounting Team`;
-        const html = `<p>Dear Customer,</p>
-                    <p>In order to make payments to DL Wholesale Inc, please click the link below to setup your Plaid link.</p>
-                    <p><a href="${hostedLinkUrl}">${hostedLinkUrl}</a></p>
-                    <p>Regards,<br>DLW Accounting Team</p>`;
+        const text = `
+Dear Customer,
+
+In order to make payments to DL Wholesale Inc, please click the link below to set up your Plaid link:
+
+${hostedLinkUrl}
+
+The above link expires in 7 days. If it has expired, please contact your DLW sales representative for a new one.
+
+Regards,  
+DLW Accounting Team
+`;
+        const html = `
+  <p>Dear Customer,</p>
+  <p>In order to make payments to DL Wholesale Inc, please click the link below to set up your Plaid link.</p>
+  <p><a href="${hostedLinkUrl}">${hostedLinkUrl}</a></p>
+  <p>The above link expires in 7 days. If it has expired, please contact your DLW sales representative for a new one.</p>
+  <p>Regards,<br>DLW Accounting Team</p>
+`;
 
         await sendEmail({to: email, subject, text, html});
     }
