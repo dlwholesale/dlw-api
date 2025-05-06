@@ -6,11 +6,16 @@ class CustomerService {
     }
 
     async getCustomers() {
-        return await this.customerRepository.find();
+        return await this.customerRepository.find({
+            relations: ['balances']
+        });
     }
 
     async getCustomer(id) {
-        const customer = await this.customerRepository.findOneBy({id: id});
+        const customer = await this.customerRepository.findOne({
+            where: {id},
+            relations: ["balances"]
+        });
         if (!customer) {
             throw new Error("Customer not found");
         }

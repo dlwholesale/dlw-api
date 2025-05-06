@@ -13,7 +13,7 @@ class WebhookController {
             public_tokens: publicTokens
         } = req.body;
 
-        if (webhookType === 'LINK') {
+        if ((webhookType === 'LINK') && (status === 'SUCCESS')) {
             switch (webhookCode) {
                 case 'SESSION_FINISHED':
                     await this.sessionFinished(linkToken, status, publicTokens);

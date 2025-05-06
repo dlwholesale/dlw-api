@@ -87,5 +87,13 @@ module.exports = new EntitySchema({
             nullable: true,
             select: false
         }
+    },
+    relations: {
+        balances: {
+            type: "one-to-many",
+            target: "CustomerBalance",
+            inverseSide: "customer",
+            cascade: true
+        }
     }
 });

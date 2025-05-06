@@ -1,6 +1,7 @@
 const {AppDataSource} = require("../../../data-source");
 const {PlaidClient} = require("../../../plaid");
 const CustomerService = require("./customer.service");
+const CustomerBalanceService = require("./customer-balance.service");
 const PlaidDataService = require("./plaid-data.service");
 
 class PlaidService {
@@ -26,7 +27,7 @@ class PlaidService {
                     street2: customer.street2,
                     city: customer.city,
                     region: customer.region,
-                    postal_code: customer.postal_code,
+                    postal_code: customer.postalCode,
                     country: customer.country,
                 },
             },
@@ -87,8 +88,10 @@ class PlaidService {
 
         // If balance_updated_at is null or is within the last 10 minutes, use the cached balance.
         if (!lastUpdated || lastUpdated >= tenMinutesAgo) {
+            const balances = await CustomerBalanceService.findByCustomer(id);
             return {
                 customer,
+                balances,
                 refreshed: false,
                 message: "Cached value is used because it is within the configured threshold (last ten minutes).",
             };
@@ -101,22 +104,33 @@ class PlaidService {
 
         try {
             const response = await PlaidClient.accountsBalanceGet(request);
-            const balances = response.data.accounts[0].balances;
+            const accounts = response.data.accounts;
 
-            // Update the customer's data
+            // Store per-account balances
+            const storedBalances = await CustomerBalanceService.storeBalances(id, accounts);
+
+            // Update aggregate on Customer row
+            const aggregate = accounts
+                .map(a => a.balances.available ?? 0)
+                .reduce((sum, val) => sum + val, 0);
+
             const updatedCustomer = await CustomerService.updateCustomer(id, {
-                balance: balances.available,
-                updatedAt: now
+                balance: aggregate,
+                updatedAt: now,
             });
 
             return {
                 customer: updatedCustomer,
+                balances: storedBalances,
                 refreshed: true,
                 message: "Fresh balance retrieved from Plaid API."
             };
         } catch (err) {
+            // On error, return existing customer + any cached balances
+            const balances = await CustomerBalanceService.findByCustomer(id);
             return {
                 customer,
+                balances,
                 refreshed: false,
                 message: err.message
             };
@@ -177,12 +191,13 @@ class PlaidService {
 
         try {
             const { data } = await PlaidClient.authGet(request);
-            const achNumbers = data.numbers.ach;
+            const achNumbers = data.numbers?.ach ?? [];
 
-            return {
-                account: achNumbers[0].account,
-                routing: achNumbers[0].routing,
-            };
+            return achNumbers.map(item => ({
+                account: item.account,
+                routing: item.routing,
+                accountId: item.account_id
+            }));
         } catch (err) {
             return {
                 message: err.message
