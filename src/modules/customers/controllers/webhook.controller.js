@@ -13,7 +13,7 @@ class WebhookController {
             public_tokens: publicTokens
         } = req.body;
 
-        if ((webhookType === 'LINK') && (status === 'SUCCESS')) {
+        if (webhookType === 'LINK') {
             switch (webhookCode) {
                 case 'SESSION_FINISHED':
                     await this.sessionFinished(linkToken, status, publicTokens);
@@ -51,7 +51,7 @@ class WebhookController {
             const baseUrl = process.env.API_BASE_URL;
 
             try {
-                const data = await axios.get(`${baseUrl}/plaid/${customer.id}/identity/get`);
+                const {data} = await axios.get(`${baseUrl}/plaid/${customer.id}/identity/get`);
 
                 return await PlaidDataService.upsertPlaidDataForCustomer(customer.id, data);
             } catch (error) {
