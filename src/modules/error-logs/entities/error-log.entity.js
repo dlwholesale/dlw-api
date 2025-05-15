@@ -18,10 +18,6 @@ module.exports = new EntitySchema({
         message: {
             type: "text"
         },
-        stack: {
-            type: "text",
-            nullable: true
-        },
         details: {
             type: "text",
             nullable: true
