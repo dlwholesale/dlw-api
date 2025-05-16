@@ -156,21 +156,21 @@ class PlaidService {
             const accounts = data.accounts;
 
             const owner = accounts[0].owners[0];
-            const email = owner.emails.find(data => data.primary) || {};
-            const phone = owner.phone_numbers.find(data => data.primary) || {};
-            const address = owner.addresses.find(data => data.primary) || {};
+            const email = owner.emails.find(data => data.primary) || owner.emails[0] || {};
+            const phone = owner.phone_numbers.find(data => data.primary) || owner.phone_numbers[0] || {};
+            const address = owner.addresses.find(data => data.primary) || owner.addresses[0] || {};
 
             return {
                 customerId: id,
-                name: owner.names[0],
-                email: email.data || null,
-                phone: phone.data || null,
-                street: address.data.street,
-                // street2: address.data.street2,
-                city: address.data.city,
-                region: address.data.region,
-                postalCode: address.data.postal_code,
-                country: address.data.country,
+                name: owner.names?.[0] || null,
+                email: email.data ?? null,
+                phone: phone.data ?? null,
+                street: address.data?.street ?? null,
+                // street2: address.data?.street2 ?? null,
+                city: address.data?.city ?? null,
+                region: address.data?.region ?? null,
+                postalCode: address.data?.postal_code ?? null,
+                country: address.data?.country ?? null,
             };
         } catch (err) {
             return {

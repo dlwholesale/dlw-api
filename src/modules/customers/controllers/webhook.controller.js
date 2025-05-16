@@ -65,31 +65,6 @@ class WebhookController {
 
             throw new Error("Customer could not be found or updated!");
         }
-
-        // Get customer's info from Plaid
-        if (customer) {
-            const baseUrl = process.env.API_BASE_URL;
-
-            try {
-                const {data} = await axios.get(`${baseUrl}/plaid/${customer.id}/identity/get`);
-
-                return await PlaidDataService.upsertPlaidDataForCustomer(customer.id, data);
-            } catch (error) {
-                await ErrorLogService.logError(error, {
-                    source: 'webhook',
-                    type: 'SESSION_FINISHED',
-                    action: 'Get customer identity',
-                    customer: {
-                        id: customer.id,
-                        customer_id: customer.customerId,
-                        name: customer.name,
-                        email: customer.email,
-                    }
-                });
-
-                throw new Error('Could not get customer identity');
-            }
-        }
     }
 
     async getAccessToken(token) {
