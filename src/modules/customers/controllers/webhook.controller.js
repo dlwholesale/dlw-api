@@ -41,12 +41,13 @@ class WebhookController {
     }
 
     async sessionFinished(linkToken, status, publicTokens) {
-        let customer;
+        let customer = null;
+        let accessToken = null;
 
         try {
             customer = await CustomerService.findCustomerByLinkToken(linkToken);
 
-            const accessToken = await this.getAccessToken(publicTokens[0]);
+            accessToken = await this.getAccessToken(publicTokens[0]);
 
             await CustomerService.updateCustomer(customer.id, {
                 linkToken: null,
@@ -61,6 +62,13 @@ class WebhookController {
                 action: 'Find or update customer',
                 link_token: linkToken,
                 status: status,
+                customer: {
+                    id: customer?.id,
+                    customerId: customer?.customerId,
+                    name: customer?.name,
+                    email: customer?.email,
+                },
+                accessToken: accessToken,
             });
 
             throw new Error("Customer could not be found or updated!");
