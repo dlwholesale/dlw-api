@@ -18,17 +18,19 @@ class WebhookController {
         if (webhookType === 'LINK') {
             switch (webhookCode) {
                 case 'SESSION_FINISHED':
-                    try {
-                        await this.sessionFinished(linkToken, status, publicTokens);
-                    } catch (error) {
-                        await ErrorLogService.logError(error, {
-                            url: req.url,
-                            method: req.method,
-                            headers: req.headers,
-                            body: req.body
-                        });
+                    if (status.toUpperCase() === 'SUCCESS') {
+                        try {
+                            await this.sessionFinished(linkToken, status, publicTokens);
+                        } catch (error) {
+                            await ErrorLogService.logError(error, {
+                                url: req.url,
+                                method: req.method,
+                                headers: req.headers,
+                                body: req.body
+                            });
 
-                        await this.emailLogNotification();
+                            await this.emailLogNotification();
+                        }
                     }
 
                     break;
