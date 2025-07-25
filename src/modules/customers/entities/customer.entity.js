@@ -86,6 +86,11 @@ module.exports = new EntitySchema({
             name: "link_token",
             nullable: true,
             select: false
+        },
+        updateMode: {
+            type: "boolean",
+            name: "update_mode",
+            default: false
         }
     },
     relations: {

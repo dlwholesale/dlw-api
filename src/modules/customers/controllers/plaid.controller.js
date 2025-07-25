@@ -1,4 +1,5 @@
 const PlaidService = require("../services/plaid.service");
+const CustomerService = require("../services/customer.service");
 // const { sendEmail } = require("../../../sendgrid");
 // const { sendEmail } = require("../../../mailjet");
 const {sendEmail} = require("../../../nodemailer");
@@ -29,35 +30,56 @@ class PlaidController {
     }
 
     async getCustomerBalance(req, res, next) {
+        const id = parseInt(req.params.id, 10);
+
         try {
-            const id = parseInt(req.params.id, 10);
             const customer = await PlaidService.getCustomerBalance(id);
 
             return res.json(customer);
         } catch (err) {
-            return res.status(404).json({error: err.message});
+            if (err.message === 'ITEM_LOGIN_REQUIRED') {
+                await this.newLinkInUpdateMode(id);
+
+                return res.status(401).json({error: 'Customer\'s login expired. A new Plaid Link was sent to re-authenticate.'});
+            }
+
+            return res.status(err.response?.status ?? 500).json({error: err.message});
         }
     }
 
     async getCustomerIdentity(req, res, next) {
+        const id = parseInt(req.params.id, 10);
+
         try {
-            const id = parseInt(req.params.id, 10);
             const data = await PlaidService.getCustomerIdentity(id);
 
             return res.json(data);
         } catch (err) {
-            return res.status(404).json({error: err.message});
+            if (err.message === 'ITEM_LOGIN_REQUIRED') {
+                await this.newLinkInUpdateMode(id);
+
+                return res.status(401).json({error: 'Customer\'s login expired. A new Plaid Link was sent to re-authenticate.'});
+            }
+
+            return res.status(err.response?.status ?? 500).json({error: err.message});
         }
     }
 
     async getCustomerAuth(req, res, next) {
+        const id = parseInt(req.params.id, 10);
+
         try {
-            const id = parseInt(req.params.id, 10);
             const data = await PlaidService.getCustomerAuth(id);
 
             return res.json(data);
         } catch (err) {
-            return res.status(404).json({error: err.message});
+            if (err.message === 'ITEM_LOGIN_REQUIRED') {
+                await this.newLinkInUpdateMode(id);
+
+                return res.status(401).json({error: 'Customer\'s login expired. A new Plaid Link was sent to re-authenticate.'});
+            }
+
+            return res.status(err.response?.status ?? 500).json({error: err.message});
         }
     }
 
@@ -77,9 +99,13 @@ class PlaidController {
         }
     }
 
-    async emailHostedLinkUrlToCustomer(hostedLinkUrl, email) {
-        const subject = "Link your account to continue making ACH Payments";
-        const text = `
+    async emailHostedLinkUrlToCustomer(hostedLinkUrl, email, updateMode = false) {
+        const subject = [
+            "Link your account to continue making ACH Payments",
+            "Please reconnect your bank account to continue making ACH Payments",
+        ];
+        const text = [
+            `
 Dear Customer,
 
 In order to make payments to DL Wholesale Inc, please click the link below to set up your Plaid link:
@@ -89,17 +115,63 @@ ${hostedLinkUrl}
 The above link expires in 7 days. If it has expired, please contact your DLW sales representative for a new one.
 
 Regards,  
+DLW Accounting Team 
+`,
+            `
+Dear Customer,
+
+Your bank session has expired. In order to continue making payments to DL Wholesale Inc, please click the link below to 
+reconnect your account:
+
+${hostedLinkUrl}
+
+The above link expires in 7 days. If it has expired, please contact your DLW sales representative for a new one.
+
+Regards,  
 DLW Accounting Team
-`;
-        const html = `
+`,
+        ];
+        const html = [
+            `
   <p>Dear Customer,</p>
   <p>In order to make payments to DL Wholesale Inc, please click the link below to set up your Plaid link.</p>
   <p><a href="${hostedLinkUrl}">${hostedLinkUrl}</a></p>
   <p>The above link expires in 7 days. If it has expired, please contact your DLW sales representative for a new one.</p>
   <p>Regards,<br>DLW Accounting Team</p>
-`;
+`,
+            `
+  <p>Dear Customer,</p>
+  <p>Your bank session has expired. In order to continue making payments to DL Wholesale Inc, please click the link below to reconnect your account.</p>
+  <p><a href="${hostedLinkUrl}">${hostedLinkUrl}</a></p>
+  <p>The above link expires in 7 days. If it has expired, please contact your DLW sales representative for a new one.</p>
+  <p>Regards,<br>DLW Accounting Team</p>
+`,
+        ];
 
-        await sendEmail({to: email, subject, text, html});
+        const index = updateMode ? 1 : 0;
+        await sendEmail({
+            to: email,
+            subject: subject[index],
+            text: text[index],
+            html: html[index]
+        });
+    }
+
+    async newLinkInUpdateMode(id) {
+        const customer = await CustomerService.getCustomer(id);
+
+        if (!customer.linked) return;
+
+        const {
+            hostedLinkUrl,
+            linkToken,
+            requestId,
+            email
+        } = await PlaidService.createPlaidLink(customer.id, customer.accessToken);
+
+        await CustomerService.updateCustomer(customer.id, {linkToken, linked: false, updateMode: true});
+
+        await this.emailHostedLinkUrlToCustomer(hostedLinkUrl, email, true);
     }
 }
 

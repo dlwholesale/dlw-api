@@ -56,6 +56,7 @@ class WebhookController {
                 accessToken: accessToken,
                 linked: accessToken !== null,
                 updatedAt: new Date(),
+                updateMode: false,
             });
         } catch (error) {
             await ErrorLogService.logError(error, {

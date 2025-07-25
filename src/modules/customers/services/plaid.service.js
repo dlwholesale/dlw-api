@@ -9,7 +9,7 @@ class PlaidService {
         this.customerRepository = AppDataSource.getRepository("LinkedCustomer");
     }
 
-    async createPlaidLink(id) {
+    async createPlaidLink(id, currentAccessToken = null) {
         const customer = await this.customerRepository.findOneBy({id: id});
         if (!customer) {
             throw new Error("Customer not found");
@@ -45,7 +45,11 @@ class PlaidService {
         };
 
         try {
-            const {data} = await PlaidClient.linkTokenCreate(request);
+            const {data} = await PlaidClient.linkTokenCreate(currentAccessToken ? {
+                ...request,
+                access_token: currentAccessToken,
+                update: {}
+            } : request);
 
             return {
                 expiration: data.expiration,
@@ -126,6 +130,12 @@ class PlaidService {
                 message: "Fresh balance retrieved from Plaid API."
             };
         } catch (err) {
+            const errorCode = err.error_code || err.response?.data?.error_code;
+
+            if (errorCode === 'ITEM_LOGIN_REQUIRED') {
+                throw new Error(errorCode)
+            }
+
             // On error, return existing customer + any cached balances
             const balances = await CustomerBalanceService.findByCustomer(id);
             return {
@@ -173,6 +183,11 @@ class PlaidService {
                 country: address.data?.country ?? null,
             };
         } catch (err) {
+            const errorCode = err.error_code || err.response?.data?.error_code;
+
+            if (errorCode === 'ITEM_LOGIN_REQUIRED') {
+                throw new Error(errorCode)
+            }
             return {
                 message: err.message
             };
@@ -199,6 +214,11 @@ class PlaidService {
                 accountId: item.account_id
             }));
         } catch (err) {
+            const errorCode = err.error_code || err.response?.data?.error_code;
+
+            if (errorCode === 'ITEM_LOGIN_REQUIRED') {
+                throw new Error(errorCode)
+            }
             return {
                 message: err.message
             };
